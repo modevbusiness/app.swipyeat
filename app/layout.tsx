@@ -26,9 +26,7 @@ export default async function RootLayout({
 }>) {
   return (
     <ClerkProvider
-      domain={process.env.NEXT_PUBLIC_CLERK_DOMAIN}
-      isSatellite={process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === 'true'}
-      // publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
       signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
     >
