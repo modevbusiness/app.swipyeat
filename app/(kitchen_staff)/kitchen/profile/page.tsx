@@ -1,5 +1,6 @@
 "use client";
 
+import { useClerk } from "@clerk/nextjs";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { useAuth } from '@/lib/context/AuthProvider';
@@ -23,6 +24,7 @@ export default function KitchenProfilePage() {
     const supabase = createClient();
     const router = useRouter();
     const { user, loading, profile } = useAuth();
+    const { signOut } = useClerk();
     const [restaurant, setRestaurant] = useState<any>(null);
     const { language } = useLanguage();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -51,8 +53,8 @@ export default function KitchenProfilePage() {
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
-        await supabase.auth.signOut();
-        router.push('/login');
+        await signOut();
+        router.push(`${process.env.NEXT_PUBLIC_LANDING_URL}/sign-in`);
     };
 
     const formatDate = (dateString: string) => {

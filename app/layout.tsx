@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import "./globals.css";
@@ -24,19 +25,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${RubikFont.variable} antialiased`}
-      >
-        <SpeedInsights />
-        <AuthProvider>
-          <LanguageProvider>
-            <DirectionWrapper>
-              {children}
-            </DirectionWrapper>
-          </LanguageProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <ClerkProvider
+      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || `${process.env.NEXT_PUBLIC_LANDING_URL}/sign-in`}
+      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || `${process.env.NEXT_PUBLIC_LANDING_URL}/sign-up`}
+    >
+      <html lang="en">
+        <body
+          className={`${RubikFont.variable} antialiased`}
+        >
+          <SpeedInsights />
+          <AuthProvider>
+            <LanguageProvider>
+              <DirectionWrapper>
+                {children}
+              </DirectionWrapper>
+            </LanguageProvider>
+          </AuthProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

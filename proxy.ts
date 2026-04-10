@@ -1,31 +1,20 @@
-import { type NextRequest, NextResponse } from 'next/server'
-import { updateSession } from '@/lib/supabase/proxy'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
+const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)', '/api/webhook(.*)'])
 
-export async function proxy(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request)
-  
-  // Redirect logged-in users away from auth pages
-  if ((request.nextUrl.pathname === '/login' || 
-       request.nextUrl.pathname === '/signup') && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
+export default clerkMiddleware(async (auth, req) => {
+  if (!isPublicRoute(req)) {
+    await auth.protect()
   }
-
-  // Protect routes
-  const protectedRoutes = ['/orders', '/profile', '/', '/tables', '/scan', '/kitchen', '/kitchen/orders', '/kitchen/profile']
-  if (protectedRoutes.includes(request.nextUrl.pathname) && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
-  
-  return supabaseResponse
-}
+  return NextResponse.next()
+})
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
 }
