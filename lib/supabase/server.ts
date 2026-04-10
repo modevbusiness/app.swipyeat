@@ -1,28 +1,19 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient as supabaseCreateClient } from '@supabase/supabase-js'
+import { auth } from '@clerk/nextjs/server'
 
+/**
+ * Create a Supabase server client that automatically includes the Clerk
+ * session token via the `accessToken` callback.
+ *
+ * Uses the native Clerk ↔ Supabase third-party auth integration (post April 2025).
+ */
 export async function createClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient(
+  return supabaseCreateClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
     {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
+      async accessToken() {
+        return (await auth()).getToken()
       },
     }
   )
