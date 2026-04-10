@@ -26,6 +26,7 @@ export default async function RootLayout({
 }>) {
   return (
     <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || `${process.env.NEXT_PUBLIC_LANDING_URL}/sign-in`}
       signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || `${process.env.NEXT_PUBLIC_LANDING_URL}/sign-up`}
     >
